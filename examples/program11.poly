@@ -1,4 +1,4 @@
-poly(java){{{polystart}}}
+poly(java){polystart}
 import javax.swing.*;
 
 public class Main {
@@ -6,34 +6,34 @@ public class Main {
         System.out.println("Hello from Java!");
     }
 }
-{{{polyend}}}
+{polyend}
 
 
 
-poly(javamini){{{polystart}}}
+poly(javamini){polystart}
 System.out.println("Hello from JavaMini!");
-{{{polyend}}}
+{polyend}
 
 
 
-poly(c++){{{polystart}}}
+poly(c++){polystart}
 #include <iostream>
 
 int main() {
     std::cout << "Hello from C++!" << std::endl;
     return 0;
 }
-{{{polyend}}}
+{polyend}
 
 
 
-poly(js){{{polystart}}}
+poly(js){polystart}
 console.log("Hello from JavaScript!");
-{{{polyend}}}
+{polyend}
 
 
 
-poly(csharp){{{polystart}}}
+poly(csharp){polystart}
 using System;
 
 class Program
@@ -43,23 +43,23 @@ class Program
         Console.WriteLine("Hello from C#!");
     }
 }
-{{{polyend}}}
+{polyend}
 
 
 
-poly(lua){{{polystart}}}
+poly(lua){polystart}
 print("Hello from Lua!")
-{{{polyend}}}
+{polyend}
 
 
 
-poly(racket){{{polystart}}}
+poly(racket){polystart}
 #lang racket
 (displayln "Hello from Racket!")
-{{{polyend}}}
+{polyend}
 
 
 
-poly(r){{{polystart}}}
+poly(r){polystart}
 print("Hello from R!")
-{{{polyend}}}
+{polyend}

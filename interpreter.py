@@ -9,6 +9,7 @@ import os
 import tempfile
 import shutil
 import shlex
+import builtins
 
 s = {}
 
@@ -411,8 +412,22 @@ def parseJavaMini(contents):
     contents = "public class Main { public static void main(String[] args) {" + contents + "}}"
     parseJava(contents)
 
+class PurpleOutput:
+    def write(self, text):
+        PURPLE = "\033[95m"
+        RESET = "\033[0m"
+        sys.__stdout__.write(PURPLE + text + RESET)
+
+    def flush(self):
+        sys.__stdout__.flush()
+
 def parsePython(contents):
-    exec(contents)
+    original_stdout = sys.stdout
+    sys.stdout = PurpleOutput()
+    try:
+        exec(contents)
+    finally:
+        sys.stdout = original_stdout
 
 def parseLua(content):
     with tempfile.TemporaryDirectory() as tmpdirname:
@@ -460,6 +475,7 @@ LANGUAGES = {
     "python": parsePython,
     "lua": parseLua,
     "c++": parseCpp,
+    "cpp": parseCpp,
     "c": parseCpp,
     "js": parseJavaScript,
     "javascript": parseJavaScript,
@@ -471,22 +487,17 @@ LANGUAGES = {
 class PolyLang(Scope):
     def __init__(self,PROGRAM_STACK,line):
         _,lang = line.split("poly(")
-        if not line.endswith("){{{polystart}}}"): raise Exception("Missing closing parentheses with '{{{polystart}}}'.")
-        lang,_ = lang.split("){{{polystart}}}")
+        if not line.endswith("){polystart}"): raise Exception("Missing closing parentheses with '{polystart}'.")
+        lang,_ = lang.split("){polystart}")
         if not lang in LANGUAGES: raise Exception(f"Invalid programming language specified: {lang}.")
         self.language = lang
         self.CODE = []
-        # find {{{polyend}}}
-        # get the lines of code until then, and send them to the language function
-        # when done, jump to the line after
-        # follow with "end"?
-        # idea: if in poly mode, all lines will be forwarded to the polylang. then the endEncountered function executes it.
         PROGRAM_STACK.append(self)
 
     def addLine(self,line):
         self.CODE.append(line)
 
-    def endEncountered(self, PROGRAM_STACK, _): # fired when detected {{{polyend}}}
+    def endEncountered(self, PROGRAM_STACK, _): # fired when detected {polyend}
         printColor("yellow",f"Attempting to execute {len(self.CODE)} line(s) of {self.language} code.")
         CODE = "".join(self.CODE)
         execute = LANGUAGES[self.language]
@@ -602,7 +613,7 @@ def interpretProgram(filename):
 
         if type(getFirstScope(PROGRAM_STACK)) == PolyLang:
             scope = getFirstScope(PROGRAM_STACK)
-            if line.startswith("{{{polyend}}}"):
+            if line.startswith("{polyend}"):
                 scope.endEncountered(PROGRAM_STACK,None)
             else:
                 scope.addLine(line)
@@ -655,25 +666,27 @@ def interpretProgram(filename):
             raise Exception(f"Line '{line}' does not match any known instruction.")
     print("> Successfully finished execution with no errors.")
 
-EXECUTE_MAIN_THREAD = True
-
+EXECUTE_MAIN_THREAD = False
 VERBOSE_ERRORS = True
 DEBUG_MODE = False
 
-def TEST_CASES():
-    print(get_operators("banana*time^2+"))
+def runProgram(name):
+    try:
+        interpretProgram(f"./examples/{name}.poly")
+    except Exception as e:
+        if VERBOSE_ERRORS:
+            printColor("red",f"Error: {traceback.format_exc()}")
+        else:
+            printColor("red",f"Error: {e}")
+
+def TEST_CASES(): # Used when I want to test specific functions for debugging purposes
+    runProgram("fizzbuzz")
 
 if EXECUTE_MAIN_THREAD:
     print("-"*50)
-    for i in range(11,11+1):
+    for i in range(1,11+1):
         print(f"Program {i} Output:")
-        try:
-            interpretProgram(f"program{i}.poly")
-        except Exception as e:
-            if VERBOSE_ERRORS:
-                printColor("red",f"Error: {traceback.format_exc()}")
-            else:
-                printColor("red",f"Error: {e}")
+        runProgram(f"program{i}")
         print("-"*50)
 else:
     TEST_CASES()

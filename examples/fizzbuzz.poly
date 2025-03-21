@@ -1,0 +1,150 @@
+# PolyLang Source
+
+for(i:1,100,1)do
+    if(i%3==0)then
+        if(i%5==0)then
+            print("FizzBuzz")
+        else
+            print("Fizz")
+        end
+    elseif(i%5==0)then
+        print("Buzz")
+    else
+        print(i)
+    end
+end
+
+# Python (trivial)
+
+poly(python){polystart}
+for i in range(1,101): # For loop will repeat over the range [1,100]
+    if i%3 == 0 and i%5 == 0: # If divisible by both 3 and 5, print "FizzBuzz"
+        print("FizzBuzz")
+    elif i%3 == 0: # If divisible by ONLY 3, print "Fizz"
+        print("Fizz")
+    elif i%5 == 0: # If divisible by ONLY 5, print "Buzz"
+        print("Buzz")
+    else: # If NOT divisible by 3 or 5, print the number itself
+        print(i)
+{polyend}
+
+# Java
+poly(java){polystart}
+public class Main {
+    public static void main(String[] args){
+       for (int i = 1; i <= 100; i++) { // Iterate i over the range [1,100]
+            if (i%5==0 && i%3==0){ // If i is divisible by both 3 and 5, print FizzBuzz
+                System.out.println("FizzBuzz");
+            } else if (i%3==0){ // If i is divisible by only 3, print Fizz
+                System.out.println("Fizz");
+            } else if (i%5==0){ // If i is divisible by only 5, print Buzz
+                System.out.println("Buzz");
+            } else { // Otherwise, print i
+                System.out.println(i);
+            }
+       }
+    }
+}
+{polyend}
+
+# JavaScript
+poly(js){polystart}
+for (let i = 1; i <= 100; i++){ // Iterate i over the range [1,100]
+    if (i % 3 === 0 && i % 5 === 0){ // If i is divisible by both 3 and 5, print FizzBuzz
+        console.log('FizzBuzz');
+    } else if (i % 3 === 0){ // If i is divisible by only 3, print Fizz
+        console.log('Fizz');
+    } else if (i % 5 === 0){ // If i is divisible by only 5, print Buzz
+        console.log('Buzz');
+    } else { // Otherwise, print i
+        console.log(i);
+    }
+}
+{polyend}
+
+# C Sharp
+poly(csharp){polystart}
+using System;
+class FizzBuzz
+{
+static void Main(string[] args)
+    {
+        for (int i=1; i<=100; i++){ // Iterate i over the range [1,100]
+            if (i%5 == 0 && i%3 == 0){ // If i is divisible by both 3 and 5, print FizzBuzz
+                Console.WriteLine("FizzBuzz");
+            } else if (i%3 == 0){ // If i is divisible by only 3, print Fizz
+                Console.WriteLine("Fizz");
+            } else if (i%5 == 0){ // If i is divisible by only 5, print Buzz
+                Console.WriteLine("Buzz");
+            } else { // Otherwise, print i
+                Console.WriteLine(i);
+            }
+        }  
+    }
+}
+{polyend}
+
+# C / C++
+poly(cpp){polystart}
+#include <stdio.h>
+int main(){
+    for (int i=1; i<=100; i++){ // Iterate over the numbers 1 to 100
+        if (i%5 == 0 && i%3 == 0){ // If divisible by 3 and 5, FizzBuzz!
+            printf("FizzBuzz\n");
+        } else if (i%3 == 0){ // If divisible by 3, it's Fizz time!
+            printf("Fizz\n");
+        } else if (i%5 == 0){ // If divisible by 5, it's Buzz time!
+            printf("Buzz\n");
+        } else { // Not divisible by 3 or 5. Womp womp! Just print i
+            printf("%d\n",i); // Use format string to help print i
+        }
+    }
+    return 0;
+}
+{polyend}
+
+# Racket
+poly(racket){polystart}
+#lang racket
+(define (FizzBuzz)
+  (for ([i (in-range 1 101)]) ; Loop through numbers in [1,100]
+    (if (and (= (remainder i 3) 0) (= (remainder i 5) 0)) ; If i is divisible by both 3 and 5, print "FizzBuzz", else proceed to next *if*
+        (displayln "FizzBuzz")
+        (if (= (remainder i 3) 0) ; If i is divisible by only 3, print "Fizz", else proceed to next *if*
+            (displayln "Fizz")
+            (if (= (remainder i 5) 0) ; If i is divisible by only 5, print "Buzz", else proceed to next *if*
+                (displayln "Buzz")
+                (displayln i)))))) ; In the final *else*, print the number itself, since it's not divisible by 3 or 5
+     
+(FizzBuzz)
+{polyend}
+
+# Lua
+poly(lua){polystart}
+for i = 1,100,1 do
+    if i%3==0 and i%5==0 then
+        print("FizzBuzz")
+    elseif i%3==0 then
+        print("Fizz")
+    elseif i%5==0 then
+        print("Buzz")
+    else
+        print(i)
+    end
+end
+{polyend}
+
+# R
+poly(r){polystart}
+for (i in 1:100){
+    if(i%%15==0){
+        print("FizzBuzz")
+    }else if(i%%3==0){
+        print("Fizz")
+    }else if(i%%5==0){
+        print("Buzz")
+    } else {
+        print(i)
+    }
+}
+{polyend}
