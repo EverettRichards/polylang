@@ -1,0 +1,23 @@
+x=3
+y=4
+z=x+y-1+1
+print("Subtraction")
+print(z-4) # should print 3
+print("Addition")
+print(z+4) # should print 11
+print("Multiplication")
+print(z*4) # should print 28
+print("Division")
+print(z/4) # should print 1.75
+print("Exponent")
+print(z^4) # should print 2401
+print("Modulo")
+print(z%4) # should print 
+print("Combinations")
+print(z$nCr$4) # should print 35
+print("Square Root")
+print(z$root$2) # should print ~2.65. This is the square root of z
+print("Minimum")
+print(z$min$10) # should print 7 since 7<10
+print("Maximum")
+print(z$max$10) # should print 10 since 10>7

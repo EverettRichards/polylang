@@ -1,0 +1,21 @@
+a=1
+b=2
+c=3
+d=1
+e=1
+
+print("begin")
+
+if(a==b)then
+    print("a equals b")
+elseif(a==c)then # won't run, since a!=c
+    print("a equals c")
+elseif(a==d)then # will run, since a==d is true, and no previous case ran
+    print("a equals d")
+elseif(a==e)then # will not run, since the previous case ran
+    print("a equals e")
+else # will not run, since one of the previous cases ran
+    print("a doesn't equal any of b,c,d,e")
+end
+
+print("finished!")

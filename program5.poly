@@ -1,0 +1,14 @@
+ab1=23
+print(ab1)
+a1b=46
+print(a1b)
+print(ab1+a1b*2)
+ba1=93
+print(ba1)
+b1a=186
+print(b1a)
+print(3+5*2) # Multi-operation
+1ab=104 # Error: Variable starts with a number
+print(1ab) # will not execute
+1ba=208 # will not execute
+print(1ba) # will not execute

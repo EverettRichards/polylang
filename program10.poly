@@ -1,0 +1,9 @@
+for(i:1,10)do
+    for(j:1,10)do
+        if(j%5==0)then
+            if(i%2==0)then
+                print(i,"*",j,"=",i*j)
+            end
+        end
+    end
+end

@@ -1,0 +1,4 @@
+banana=5
+print(banana)
+print(banana^banana)
+banana
