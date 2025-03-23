@@ -11,40 +11,28 @@ import shutil
 import shlex
 import builtins
 
+# TODO:
+# Detect Parentheses
+# Make compilation and execution instructions more modular
+# Order of Operations
+
 s = {}
 
 operators = { # a list of each valid operator, and a small lambda function that says what to do if that operator is encountered
+    "$nCr$": lambda x,y: comb(int(x),int(y)), # n choose c
+    "^": lambda x,y: float(x)**float(y),
+    "$root$": lambda x,y: float(x)**(1/float(y)),
+    "%": lambda x,y: x%y,
     "*": lambda x,y: x*y,
     "/": lambda x,y: x/y,
     "+": lambda x,y: x+y,
     "-": lambda x,y: x-y,
-    "%": lambda x,y: x%y,
-    "^": lambda x,y: float(x)**float(y),
-    "$root$": lambda x,y: float(x)**(1/float(y)),
-    "$nCr$": lambda x,y: comb(int(x),int(y)), # n choose c
     "$min$": lambda x,y: min(x,y),
     "$max$": lambda x,y: max(x,y),
-}
+} # Important: List must be in order of operations
 
 def isNumeric(operand):
     return operand.replace('.','',1).isdigit()
-
-def eval_expr_old(expr):
-    # here's my problem! not implemented
-    result = None
-    included_ops = [op for op in operators if op in expr]
-    if expr.isnumeric():
-        result = float(expr)
-    elif len(included_ops)==1: # only one operation is being used
-        op = included_ops[0]
-        op1,op2 = expr.split(op)
-        result = apply_operator(op1,op2,op) # apply the specified operation to the operands
-    elif len(included_ops)>1:
-        raise Exception(f"Attempted to use {len(included_ops)} operations at the same time.")
-    else:
-        raise Exception(f"Invalid expression '{expr}' provided.")
-    #print(expr,result)
-    return result
 
 op_pad_size = 7
 
@@ -65,7 +53,7 @@ def get_operators(string):
             ops.append(inverse_adjusted_operators[substring])
     return ops
 
-def eval_expr(expr):
+def eval_basic_expr(expr):
     if expr in s:
         return s[expr]
     result = 0
@@ -80,11 +68,68 @@ def eval_expr(expr):
     if len(digits)==1:
         return digits[0]
     result = digits[0]
-    for i in range(len(ops)):
-        result = apply_operator(str(result),str(digits[i+1]),ops[i])
+    ### Old parser
+    # for i in range(len(ops)):
+    #     result = apply_operator(str(result),str(digits[i+1]),ops[i])
+    ### Order of Operations parser
+    for this_op in operators:
+        i=0
+        while i < len(ops):
+            op = ops[i]
+            if op==this_op:
+                digits[i] = apply_operator(str(digits[i]),str(digits[i+1]),op)
+                digits.pop(i+1)
+                ops.pop(i) # fix issue where not working sometimes. also make it supported beyond print function, i.e. with closing )
+            else:
+                i += 1
+    result = digits[0]
+    #print("Result:",digits[0])
     return result
 
+def eval_expr(expr):
+    if expr in s:
+        return s[expr]
+    
+    if not ("(" in expr or ")" in expr):
+        return eval_basic_expr(expr)
+    
+    depth = 0
+    current_part = ""
+    parts = []
+
+    for ch in expr:
+        if ch=="(":
+            if depth == 0:
+                parts.append(current_part)
+                current_part = ""
+            else:
+                current_part += "("
+            depth += 1
+        elif ch==")":
+            if depth == 1:
+                parts.append(current_part)
+                current_part = ""
+            else:
+                current_part += ")"
+            depth -= 1
+        else:
+            current_part = current_part + ch
+    parts.append(current_part)
+    new_parts = []
+
+    for part in parts:
+        if len(part)==0: continue
+        if "(" in part and ")" in part:
+            new_parts.append(str(eval_expr(part)))
+        elif all(part!=op for op in operators) and not isNumeric(part) and not any(part.startswith(op) for op in operators): # make sure it isn't just a single operator
+            new_parts.append(str(eval_basic_expr(part)))
+        else:
+            new_parts.append(part)
+    new_expr = "".join(new_parts)
+    return eval_expr(new_expr)
+
 def eval_bool_expr(expr):
+
     # here's my problem! not implemented
     # re.split(r"[()]",expr) will return just the basic characters AND operations
     if expr=="True":
@@ -387,7 +432,7 @@ def parseJava(contents):
 
         printColor("purple",run_result.stdout.rstrip()) # output the Java output
     
-def parseJavaScript(content: str):
+def parseJavaScript(content):
     with tempfile.TemporaryDirectory() as tmpdirname:
         js_path = os.path.join(tmpdirname, "script.js")
 
@@ -482,6 +527,19 @@ LANGUAGES = {
     "csharp": parseCSharp,
     "racket": parseRacket,
     "r": parseR,
+}
+
+UNIQUE_LANGUAGES = ["java","python","lua","c++","javascript","csharp","racket","r"]
+
+HELLO_PROGRAMS = {
+    "java": "./hello/hello.java",
+    "python": "./hello/hello.py",
+    "lua": "./hello/hello.lua",
+    "c++": "./hello/hello.cpp",
+    "javascript": "./hello/hello.js",
+    "csharp": "./hello/hello.cs",
+    "racket": "./hello/hello.rkt",
+    "r": "./hello/hello.r",
 }
 
 class PolyLang(Scope):
@@ -658,16 +716,24 @@ def interpretProgram(filename):
             val = val.strip() # remove whitespace just in case
             included_ops = [op for op in operators if op in val]
             print(parseStringList(val))
+        elif line.startswith("hello(") and line.endswith(")"):
+            contents = line.removeprefix("hello(").removesuffix(")")
+            if len(contents)==0:
+                for lang,program in HELLO_PROGRAMS.values():
+                    LANGUAGES[lang](program)
+            elif any(contents==lang for lang in HELLO_PROGRAMS):
+                program = HELLO_PROGRAMS[lang]
+                LANGUAGES[lang](program)
         elif "=" in line: # assume variable assignment
             var,expr = line.split("=")
             if not isValidVariable(var): raise Exception(f"Invalid variable name provided: '{var}'.")
             s[var] = eval_expr(expr)
         else:
             raise Exception(f"Line '{line}' does not match any known instruction.")
-    print("> Successfully finished execution with no errors.")
+    printColor("green","> Successfully finished execution with no errors.")
 
 EXECUTE_MAIN_THREAD = False
-VERBOSE_ERRORS = True
+VERBOSE_ERRORS = False
 DEBUG_MODE = False
 
 def runProgram(name):
@@ -680,13 +746,15 @@ def runProgram(name):
             printColor("red",f"Error: {e}")
 
 def TEST_CASES(): # Used when I want to test specific functions for debugging purposes
-    runProgram("fizzbuzz")
+    runProgram("program11")
 
-if EXECUTE_MAIN_THREAD:
-    print("-"*50)
-    for i in range(1,11+1):
-        print(f"Program {i} Output:")
+if len(sys.argv) > 1:
+    runProgram(sys.argv[1])
+elif EXECUTE_MAIN_THREAD:
+    printColor("yellow","-"*50)
+    for i in range(11,11+1):
+        printColor("cyan",f"Program {i} Output:")
         runProgram(f"program{i}")
-        print("-"*50)
+        printColor("yellow","-"*50)
 else:
     TEST_CASES()
