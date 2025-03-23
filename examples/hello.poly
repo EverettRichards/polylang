@@ -1,3 +1,7 @@
+poly(python){polystart}
+print("Hello from Python!")
+{polyend}
+
 poly(java){polystart}
 import javax.swing.*;
 

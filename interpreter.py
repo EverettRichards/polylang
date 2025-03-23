@@ -398,8 +398,14 @@ def parseCpp(contents):
 
         printColor("purple",run_result.stdout.strip())
 
+def extract_java_main_class_name(content):
+    match = re.search(r'\bpublic\s+class\s+([A-Za-z_]\w*)', content)
+    if match:
+        return match.group(1)
+    return None
+
 def parseJava(contents):
-    class_name = "Main"
+    class_name = extract_java_main_class_name(contents)
     with tempfile.TemporaryDirectory() as tmpdirname:
         java_file = os.path.join(tmpdirname, f"{class_name}.java")
         
@@ -529,18 +535,20 @@ LANGUAGES = {
     "r": parseR,
 }
 
-UNIQUE_LANGUAGES = ["java","python","lua","c++","javascript","csharp","racket","r"]
-
-HELLO_PROGRAMS = {
-    "java": "./hello/hello.java",
-    "python": "./hello/hello.py",
-    "lua": "./hello/hello.lua",
-    "c++": "./hello/hello.cpp",
-    "javascript": "./hello/hello.js",
-    "csharp": "./hello/hello.cs",
-    "racket": "./hello/hello.rkt",
-    "r": "./hello/hello.r",
+FILE_EXTENSIONS = {
+    "java":"java",
+    "python":"py",
+    "lua":"lua",
+    "c++":"cpp",
+    "javascript":"js",
+    "csharp":"cs",
+    "racket":"rkt",
+    "r":"r",
 }
+
+HELLO_PROGRAMS = {lang:f"./hello/hello.{FILE_EXTENSIONS[lang]}" for lang in FILE_EXTENSIONS}
+
+FIZZBUZZ_PROGRAMS = {lang:f"./fizzbuzz/fizzbuzz.{FILE_EXTENSIONS[lang]}" for lang in FILE_EXTENSIONS}
 
 class PolyLang(Scope):
     def __init__(self,PROGRAM_STACK,line):
@@ -719,10 +727,28 @@ def interpretProgram(filename):
         elif line.startswith("hello(") and line.endswith(")"):
             contents = line.removeprefix("hello(").removesuffix(")")
             if len(contents)==0:
-                for lang,program in HELLO_PROGRAMS.values():
+                for lang,filename in HELLO_PROGRAMS.items():
+                    printColor("yellow",f"Running 'Hello' in {lang}.")
+                    program = open(filename,"r").read()
                     LANGUAGES[lang](program)
             elif any(contents==lang for lang in HELLO_PROGRAMS):
-                program = HELLO_PROGRAMS[lang]
+                lang = contents
+                printColor("yellow",f"Running 'Hello' in {lang}.")
+                filename = HELLO_PROGRAMS[lang]
+                program = open(filename,"r").read()
+                LANGUAGES[lang](program)
+        elif line.startswith("fizzbuzz(") and line.endswith(")"):
+            contents = line.removeprefix("fizzbuzz(").removesuffix(")")
+            if len(contents)==0:
+                for lang,filename in FIZZBUZZ_PROGRAMS.items():
+                    printColor("yellow",f"Running 'Fizzbuzz' in {lang}.")
+                    program = open(filename,"r").read()
+                    LANGUAGES[lang](program)
+            elif any(contents==lang for lang in FIZZBUZZ_PROGRAMS):
+                lang = contents
+                printColor("yellow",f"Running 'Fizzbuzz' in {lang}.")
+                filename = FIZZBUZZ_PROGRAMS[lang]
+                program = open(filename,"r").read()
                 LANGUAGES[lang](program)
         elif "=" in line: # assume variable assignment
             var,expr = line.split("=")
