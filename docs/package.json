@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "prismjs": "^1.30.0",
+    "react-router-dom": "^7.5.3"
+  }
+}
