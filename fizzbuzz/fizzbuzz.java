@@ -1,5 +1,3 @@
-p
-
 public class fizzbuzz {
     public static void main(String[] args){
        for (int i = 1; i <= 100; i++) { // Iterate i over the range [1,100]

@@ -293,7 +293,6 @@ def parseCSharp(content):
     with tempfile.TemporaryDirectory() as tmpdirname:
         project_path = os.path.join(tmpdirname, "MyApp")
 
-        # Step 1: Create a new C# console project
         subprocess.run(
             ["dotnet", "new", "console", "-o", project_path],
             stdout=subprocess.PIPE,
@@ -303,11 +302,9 @@ def parseCSharp(content):
 
         program_cs_path = os.path.join(project_path, "Program.cs")
 
-        # Step 2: Replace Program.cs with user's code
         with open(program_cs_path, "w") as cs_file:
             cs_file.write(content)
 
-        # Step 3: Build the project
         build_result = subprocess.run(
             ["dotnet", "build", project_path, "-c", "Release"],
             stdout=subprocess.PIPE,
@@ -319,8 +316,6 @@ def parseCSharp(content):
         if build_result.returncode != 0:
             return f"Compilation Error:\n{build_result.stderr}"
 
-        # Step 4: Run the compiled program
-        # Detect actual DLL path (from bin/Release)
         release_path = os.path.join(project_path, "bin", "Release")
         frameworks = os.listdir(release_path)
         if not frameworks:
@@ -328,7 +323,6 @@ def parseCSharp(content):
 
         dll_path = os.path.join(release_path, frameworks[0], "MyApp.dll")
 
-        # Fix: run dotnet with proper DLL path
         run_result = subprocess.run(
             ["dotnet", dll_path],
             stdout=subprocess.PIPE,
@@ -370,11 +364,9 @@ def parseCpp(contents):
         cpp_path = os.path.join(tmpdirname, f"{filename}.cpp")
         exe_path = os.path.join(tmpdirname, filename)
 
-        # Step 1: Write the C++ code to file
         with open(cpp_path, "w") as cpp_file:
             cpp_file.write(contents)
 
-        # Step 2: Compile the C++ code
         compile_result = subprocess.run(
             ["g++", cpp_path, "-o", exe_path],
             stdout=subprocess.PIPE,
@@ -385,7 +377,6 @@ def parseCpp(contents):
         if compile_result.returncode != 0:
             return f"Compilation Error:\n{compile_result.stderr}"
 
-        # Step 3: Run the compiled program
         run_result = subprocess.run(
             [exe_path],
             stdout=subprocess.PIPE,
@@ -442,11 +433,9 @@ def parseJavaScript(content):
     with tempfile.TemporaryDirectory() as tmpdirname:
         js_path = os.path.join(tmpdirname, "script.js")
 
-        # Step 1: Write JS code to file
         with open(js_path, "w") as js_file:
             js_file.write(content)
 
-        # Step 2: Run the JS file with Node.js
         run_result = subprocess.run(
             ["node", js_path],
             stdout=subprocess.PIPE,
@@ -503,11 +492,9 @@ def parseR(content):
     with tempfile.TemporaryDirectory() as tmpdirname:
         r_path = os.path.join(tmpdirname, "script.R")
 
-        # Write R code to a file
         with open(r_path, "w") as r_file:
             r_file.write(content)
 
-        # Run the script using Rscript
         run_result = subprocess.run(
             ["Rscript", r_path],
             stdout=subprocess.PIPE,
